@@ -12,7 +12,7 @@ This project uses an Arduino-compatible board to collect and display sensor data
 - **IMU sensor**: ICM-20948
 - **OLED Display**: SSD1306
 
-![Circuit Diagram](./circuit_image.png)
+![Circuit Diagram](./circuit_image (1).png)
 
 
 ---
