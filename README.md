@@ -18,7 +18,7 @@ This project uses an Arduino-compatible board to collect and display sensor data
 
 ### 1. Open the `.ino` file in Arduino IDE
 - Launch Arduino IDE  
-- Go to `File > Open...` and select `515_sensor_code.ino`
+- Go to `File > Open...` and select [`515_sensor_code.ino`](./515_sensor_code.ino)
 
 ### 2. Install Required Libraries  
 Go to `Tools > Manage Libraries...`, then install the following:
