@@ -5,37 +5,42 @@ This project uses an Arduino-compatible board to collect and display sensor data
 
 ---
 
-## Preparation
+## 🛠 Preparation
 
-- Seeed Studio XIAO ESP32-C3
-- IMU sensor (ICM-20948)
-- OLED Display (SSD1306)
+### Required Components
+- **Seeed Studio XIAO ESP32-C3**
+- **IMU sensor**: ICM-20948
+- **OLED Display**: SSD1306
 
-2. Open the .ino file in Arduino IDE:
-Launch Arduino IDE
+---
 
-Go to File > Open... and select 515_sensor_code.ino
+## 🚀 How to Run the Code
 
-3. Install Required Libraries:
-In the Arduino IDE, go to Tools > Manage Libraries... and install:
+### 1. Open the `.ino` file in Arduino IDE
+- Launch Arduino IDE  
+- Go to `File > Open...` and select `515_sensor_code.ino`
 
-Adafruit ICM20948 or ICM20948_WE
+### 2. Install Required Libraries  
+Go to `Tools > Manage Libraries...`, then install the following:
+- `Adafruit ICM20948` or `ICM20948_WE`
+- `Adafruit SSD1306` or `Adafruit SSD1331` (depending on your OLED)
+- `Adafruit GFX Library`
+- `Wire`
 
-Adafruit SSD1306 or Adafruit SSD1331 (depending on your OLED)
+### 3. Set Your Board & Port  
+- Go to `Tools > Board > Select your board` (e.g., **"Seeed XIAO ESP32C3"**)  
+- Go to `Tools > Port > Select the correct COM port`
 
-Adafruit GFX Library
+### 4. Upload the Code  
+Click the ✅ **Upload** button to flash the code to your board.
 
-Wire
+---
 
-4. Set Your Board & Port:
-Tools > Board > Select your board (e.g., "Seeed XIAO ESP32C3")
+## 🖥️ What You Should See
 
-Tools > Port > Select the correct COM port
+The OLED screen will display real-time sensor data, such as:
+- Acceleration
+- Gyroscope readings
+- Temperature
 
-5. Upload the Code:
-Click the ✅✔️ Upload button to flash the code onto your board.
-
-🖥️ What You Should See
-The OLED screen will display real-time sensor data (e.g., acceleration, gyro, temperature)
-
-Data refreshes continuously
+Data refreshes continuously.
