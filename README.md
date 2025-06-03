@@ -29,10 +29,6 @@ This project is a real-time human motion classification and feedback system desi
 ```
 
 
-markdown
-Copy
-Edit
-
 ## 🖥️ Software Dependencies
 
 - Python 3.8+
