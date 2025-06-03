@@ -42,44 +42,42 @@ To install dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
 
+---
 
-🚀 How to Run
-1. Sensor Mode (Arduino + IMU)
-Flash 515_sensor_code.ino to your XIAO ESP32-C3 (or equivalent)
+### 🚀 How to Run
 
-Connect IMU sensor as per breadboard.png
+#### 1. Sensor Mode (Arduino + IMU)
 
-Stream serial data to your Python script (optional for legacy use)
+- Flash `515_sensor_code.ino` to your XIAO ESP32-C3 (or equivalent)
+- Connect IMU sensor as per `breadboard.png`
+- Stream serial data to your Python script *(optional, for legacy use)*
 
-2. Camera Mode (Webcam)
-Run collect_pose_data_deadlift.py to collect your own keypoint data
+#### 2. Camera Mode (Webcam)
 
-Train your model via train_classifier_shoulderlift.py
+- Run `collect_pose_data_deadlift.py` to collect your own keypoint data
+- Train your model via `train_classifier_shoulderlift.py`
+- Start real-time classification:
 
-Start real-time classification:
-
-bash
-Copy
-Edit
+```bash
 python realtime_shoulderpress.py
-🧪 Use Cases
-Gym form tracking
+```
 
-At-home workout correction
+---
 
-Personal fitness analytics
+### ✅ Use Cases
 
-📦 Hardware Used
-Seeed Studio XIAO ESP32-C3
+- Gym form tracking  
+- At-home workout correction  
+- Personal fitness analytics  
 
-ICM20948 9-DoF IMU
+---
 
-Webcam (for pose detection)
+### 🔧 Hardware Used
 
-3D-printed enclosure (515_final enclosure.stl)
+- Seeed Studio XIAO ESP32-C3  
+- ICM20948 9-DoF IMU sensor  
+- Standard USB webcam  
+- Custom 3D-printed enclosure (`515_final enclosure.stl`)
 
-👩‍💻 Authors
-Reb (acceberH)
-
-TECHIN 515 Team
