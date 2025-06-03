@@ -1,48 +1,85 @@
-# 515proj
-# 515 Final Project
+# 515proj: Real-Time Pose Feedback System
 
-This project uses an Arduino-compatible board to collect and display sensor data in real-time. It reads motion and orientation data from an IMU (ICM-20948) and displays key information on an OLED screen.
+This project is a real-time human motion classification and feedback system designed to assist users during strength training exercises like deadlifts and shoulder presses. It builds on embedded sensor data and adds webcam-based pose classification, providing users with immediate feedback on form accuracy.
 
----
+## 🧠 Key Features
 
-## 🛠 Preparation
+- **IMU Sensor-Based Tracking**  
+  Collects motion data from a 9-DoF IMU sensor (ICM20948) mounted on the body for initial gesture classification.
 
-### Required Components
-- **Seeed Studio XIAO ESP32-C3**
-- **IMU sensor**: ICM-20948
-- **OLED Display**: SSD1306
+- **Webcam-Based Pose Classification**  
+  Using `MediaPipe` and a trained ML model, the system captures keypoints from webcam video to identify and classify movements in real time.
 
-![Circuit Diagram](./breadboard.png)
+- **Custom Real-Time Interface**  
+  Replaces OLED hardware display with a Python-based desktop interface to show feedback, predictions, and system status.
 
----
+## 📁 Project Structure
 
-## 🚀 How to Run the Code
+515proj/
+├── 515_sensor_code.ino # Arduino code for ICM20948 sensor
+├── breadboard.png # Circuit diagram for sensor wiring
+├── collect_pose_data_deadlift.py # Script to capture deadlift pose data via webcam
+├── realtime_shoulderpress.py # Real-time classification using webcam
+├── train_classifier_shoulderlift.py # ML training script for shoulder press
+├── pose_classifier.pkl # Trained ML model
+├── final_data/ # Dataset used for training
+├── 515_final enclosure.stl # Enclosure design for sensor hardware
+└── README.md # You are here
 
-### 1. Open the `.ino` file in Arduino IDE
-- Launch Arduino IDE  
-- Go to `File > Open...` and select [`515_sensor_code.ino`](./515_sensor_code.ino)
+markdown
+Copy
+Edit
 
-### 2. Install Required Libraries  
-Go to `Tools > Manage Libraries...`, then install the following:
-- `Adafruit ICM20948` or `ICM20948_WE`
-- `Adafruit SSD1306` or `Adafruit SSD1331` (depending on your OLED)
-- `Adafruit GFX Library`
-- `Wire`
+## 🖥️ Software Dependencies
 
-### 3. Set Your Board & Port  
-- Go to `Tools > Board > Select your board` (e.g., **"Seeed XIAO ESP32C3"**)  
-- Go to `Tools > Port > Select the correct COM port`
+- Python 3.8+
+- OpenCV
+- MediaPipe
+- scikit-learn
+- PySerial (for sensor communication, if needed)
 
-### 4. Upload the Code  
-Click the ✅ **Upload** button to flash the code to your board.
+To install dependencies:
 
----
+```bash
+pip install -r requirements.txt
+If you don’t have a requirements.txt, let me know — I can generate one from your imports.
 
-## 🖥️ What You Should See
+🚀 How to Run
+1. Sensor Mode (Arduino + IMU)
+Flash 515_sensor_code.ino to your XIAO ESP32-C3 (or equivalent)
 
-The OLED screen will display real-time sensor data, such as:
-- Acceleration
-- Gyroscope readings
-- Temperature
+Connect IMU sensor as per breadboard.png
 
-Data refreshes continuously.
+Stream serial data to your Python script (optional for legacy use)
+
+2. Camera Mode (Webcam)
+Run collect_pose_data_deadlift.py to collect your own keypoint data
+
+Train your model via train_classifier_shoulderlift.py
+
+Start real-time classification:
+
+bash
+Copy
+Edit
+python realtime_shoulderpress.py
+🧪 Use Cases
+Gym form tracking
+
+At-home workout correction
+
+Personal fitness analytics
+
+📦 Hardware Used
+Seeed Studio XIAO ESP32-C3
+
+ICM20948 9-DoF IMU
+
+Webcam (for pose detection)
+
+3D-printed enclosure (515_final enclosure.stl)
+
+👩‍💻 Authors
+Reb (acceberH)
+
+TECHIN 515 Team
