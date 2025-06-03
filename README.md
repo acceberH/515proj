@@ -16,15 +16,16 @@ This project is a real-time human motion classification and feedback system desi
 ## 📁 Project Structure
 
 515proj/
-├── 515_sensor_code.ino # Arduino code for ICM20948 sensor
-├── breadboard.png # Circuit diagram for sensor wiring
-├── collect_pose_data_deadlift.py # Script to capture deadlift pose data via webcam
-├── realtime_shoulderpress.py # Real-time classification using webcam
-├── train_classifier_shoulderlift.py # ML training script for shoulder press
-├── pose_classifier.pkl # Trained ML model
-├── final_data/ # Dataset used for training
-├── 515_final enclosure.stl # Enclosure design for sensor hardware
-└── README.md # You are here
+├── 515_sensor_code.ino             # Arduino code for ICM20948 sensor
+├── breadboard.png                  # Circuit diagram for sensor wiring
+├── collect_pose_data_deadlift.py  # Script to capture deadlift pose data via webcam
+├── realtime_shoulderpress.py      # Real-time classification using webcam
+├── train_classifier_shoulderlift.py  # ML training script for shoulder press
+├── pose_classifier.pkl            # Trained ML model
+├── final_data/                    # Dataset used for training
+├── 515_final enclosure.stl        # Enclosure design for sensor hardware
+└── README.md                      # You are here
+
 
 markdown
 Copy
