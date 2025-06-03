@@ -1,4 +1,4 @@
-# 515proj: Real-Time Pose Feedback System
+# LiftWell: Real-Time Pose Feedback System
 
 This project is a real-time human motion classification and feedback system designed to assist users during strength training exercises like deadlifts and shoulder presses. It builds on embedded sensor data and adds webcam-based pose classification, providing users with immediate feedback on form accuracy.
 
