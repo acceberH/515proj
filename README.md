@@ -29,19 +29,20 @@ This project is a real-time human motion classification and feedback system desi
 ```
 
 
-## 🖥️ Software Dependencies
+
+### 🖥️ Software Dependencies
 
 - Python 3.8+
 - OpenCV
 - MediaPipe
 - scikit-learn
-- PySerial (for sensor communication, if needed)
+- PySerial (for sensor communication)
 
 To install dependencies:
 
 ```bash
 pip install -r requirements.txt
-If you don’t have a requirements.txt, let me know — I can generate one from your imports.
+
 
 🚀 How to Run
 1. Sensor Mode (Arduino + IMU)
