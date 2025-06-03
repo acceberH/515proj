@@ -13,8 +13,9 @@ This project is a real-time human motion classification and feedback system desi
 - **Custom Real-Time Interface**  
   Replaces OLED hardware display with a Python-based desktop interface to show feedback, predictions, and system status.
 
-## 📁 Project Structure
+### 📁 Project Structure
 
+```text
 515proj/
 ├── 515_sensor_code.ino             # Arduino code for ICM20948 sensor
 ├── breadboard.png                  # Circuit diagram for sensor wiring
@@ -25,6 +26,7 @@ This project is a real-time human motion classification and feedback system desi
 ├── final_data/                    # Dataset used for training
 ├── 515_final enclosure.stl        # Enclosure design for sensor hardware
 └── README.md                      # You are here
+```
 
 
 markdown
