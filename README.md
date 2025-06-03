@@ -78,6 +78,6 @@ python realtime_shoulderpress.py
 
 - Seeed Studio XIAO ESP32-C3  
 - ICM20948 9-DoF IMU sensor  
-- Standard USB webcam  
+- Laptop webcam  
 - Custom 3D-printed enclosure (`515_final enclosure.stl`)
 
