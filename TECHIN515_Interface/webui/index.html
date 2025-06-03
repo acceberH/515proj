@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise Pose Classifier</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fff; margin: 0; padding: 0; }
+        .container { max-width: 1100px; margin: 24px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+        h1 { text-align: center; font-size: 2.5em; }
+        #video-container { position: relative; width: 800px; height: 600px; }
+        #webcam, #output-canvas { position: absolute; top: 0; left: 0; }
+        #output-canvas { pointer-events: none; }
+        #feedback { margin-top: 36px; text-align: center; font-size: 2em; color: #007700; }
+        #form-suggestion { margin-top: 20px; font-size: 1.5em; color: #0055aa; text-align: center; }
+        #imu-suggestion { margin-top: 12px; font-size: 1.3em; color: #aa5500; text-align: center; }
+        #imu-data { margin-top: 16px; text-align: center; color: #333; font-size: 1.3em; }
+        #api-status { margin-top: 10px; text-align: center; font-size: 1.1em; color: #007700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Exercise Pose Classifier</h1>
+        <p style="text-align:center;">Enable your webcam and perform an exercise. The system will classify your form in real time.</p>
+        <div id="main-content" style="display: flex; flex-direction: column; align-items: center;">
+        <div id="video-container" style="position: relative; width: 800px; height: 600px;">
+            <video id="webcam" width="800" height="600" autoplay muted playsinline style="position: absolute; top: 0; left: 0;"></video>
+            <canvas id="output-canvas" width="800" height="600" style="position: absolute; top: 0; left: 0; pointer-events: none;"></canvas>
+        </div>
+        <div id="feedback" style="margin-top: 36px; font-size: 2em; color: #007700; text-align: center;">Waiting for pose...</div>
+        <div id="form-suggestion" style="margin-top: 20px; font-size: 1.5em; color: #0055aa; text-align: center;"></div>
+        <div id="imu-suggestion" style="margin-top: 12px; font-size: 1.3em; color: #aa5500; text-align: center;"></div>
+        <div id="imu-data"></div>
+        <div id="api-status"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.5/drawing_utils.js"></script>
+    <script>
+// Get elements
+const video = document.getElementById('webcam');
+const canvas = document.getElementById('output-canvas');
+const ctx = canvas.getContext('2d');
+const feedbackDiv = document.getElementById('feedback');
+const imuDiv = document.getElementById('imu-data');
+const apiStatusDiv = document.getElementById('api-status');
+
+// Start webcam
+async function setupWebcam() {
+    return new Promise((resolve, reject) => {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => resolve();
+            })
+            .catch(err => reject(err));
+    });
+}
+
+// Convert Mediapipe landmarks to flat array
+function landmarksToArray(landmarks) {
+    if (!landmarks) return [];
+    return landmarks.flatMap(l => [l.x, l.y, l.z, l.visibility]);
+}
+
+// Send keypoints to backend
+async function classifyPose(keypoints) {
+    try {
+        const res = await fetch('http://localhost:5051/classify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keypoints })
+        });
+        const data = await res.json();
+        console.log('Classify API response:', data); // Debug output
+        apiStatusDiv.textContent = `API: Success (${new Date().toLocaleTimeString()})`;
+        return data.result;
+    } catch (err) {
+        apiStatusDiv.textContent = `API: Error (${new Date().toLocaleTimeString()})`;
+        return 'API error';
+    }
+}
+
+// Draw pose landmarks
+function drawLandmarks(landmarks) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!landmarks) return;
+    ctx.fillStyle = 'red';
+    for (const l of landmarks) {
+        ctx.beginPath();
+        ctx.arc(l.x * canvas.width, l.y * canvas.height, 5, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+}
+
+// Main
+async function main() {
+    await setupWebcam();
+    const pose = new Pose({
+        locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/${file}`
+    });
+    pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+
+    let lastFeedback = 'Waiting for pose...';
+    let latestKeypoints = null;
+
+    // Draw pose landmarks and always show the last feedback
+    pose.onResults(results => {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        drawLandmarks(results.poseLandmarks);
+        if (results.poseLandmarks) {
+            latestKeypoints = landmarksToArray(results.poseLandmarks);
+        }
+        // Always show the last feedback
+        feedbackDiv.textContent = lastFeedback;
+    });
+
+    // Run Mediapipe in a loop
+    async function detect() {
+        await pose.send({ image: video });
+        requestAnimationFrame(detect);
+    }
+    detect();
+
+    // Store latest IMU data for suggestions
+    let latestIMU = { accel: [0,0,0], gyro: [0,0,0], temp: 0 };
+
+    // Call ML API every 2 seconds
+    async function classifyLoop() {
+        if (latestKeypoints) {
+            const feedback = await classifyPose(latestKeypoints);
+            lastFeedback = feedback;
+            feedbackDiv.textContent = feedback; // Update UI immediately after API response
+            // Update suggestions
+            document.getElementById('form-suggestion').textContent = getFormSuggestion(feedback);
+            document.getElementById('imu-suggestion').textContent = getIMUSuggestionFromText();
+        }
+        setTimeout(classifyLoop, 2000);
+    }
+    classifyLoop();
+}
+
+main();
+
+// IMU data: Poll from backend (optional, if you want to display latest IMU data)
+async function pollIMU() {
+    try {
+        const res = await fetch('http://localhost:5051/imu-latest');
+        if (res.ok) {
+            const data = await res.json();
+            latestIMU = data;
+            imuDiv.textContent = `Accel: [${data.accel.join(', ')}] | Gyro: [${data.gyro.join(', ')}] | Temp: ${data.temp}`;
+        }
+    } catch {}
+    setTimeout(pollIMU, 1000);
+}
+pollIMU();
+
+// Form suggestion based on ML classification
+function getFormSuggestion(classification) {
+    if (classification.includes('Deadlift: Correct')) {
+        return 'Great form! Keep your back straight and core engaged.';
+    } else if (classification.includes('Deadlift: Legs Too Wide')) {
+        return 'Bring your feet closer together for better stability.';
+    } else if (classification.includes('Shoulder Press: Correct')) {
+        return 'Excellent! Maintain steady upward motion.';
+    } else if (classification.includes('Shoulder Press: Incorrect')) {
+        return 'Watch your elbow and wrist alignment. Keep your core tight.';
+    } else if (classification.includes('Flyes: Correct')) {
+        return 'Good job! Control the movement and avoid swinging.';
+    } else if (classification.includes('Flyes: Incorrect')) {
+        return 'Adjust your arm angle; keep elbows slightly bent.';
+    } else {
+        return 'Keep going! Focus on controlled movement.';
+    }
+}
+
+// IMU-based suggestion
+function getIMUSuggestion(imu) {
+    let suggestion = '';
+    // Print the actual array values
+    console.log('Raw IMU:', imu, 'accel:', imu.accel, 'gyro:', imu.gyro, 'temp:', imu.temp);
+
+    // Use array indices and ensure numbers
+    const ax = Number(imu.accel?.[0]) || 0;
+    const ay = Number(imu.accel?.[1]) || 0;
+    // const az = Number(imu.accel?.[2]) || 0; // Not used for accelMag
+    const gx = Number(imu.gyro?.[0]) || 0;
+    const gy = Number(imu.gyro?.[1]) || 0;
+    const gz = Number(imu.gyro?.[2]) || 0;
+
+    // Use only x and y for accelMag, all for gyroMag
+    const accelMag = Math.abs(ax) + Math.abs(ay);
+    const gyroMag = Math.abs(gx) + Math.abs(gy) + Math.abs(gz);
+    const highAccel = accelMag > 4;
+    const highGyro = gyroMag > 2;
+    const highTemp = imu.temp > 30;
+
+    // Debug output
+    console.log('IMU Debug - accelMag:', accelMag.toFixed(2), 'gyroMag:', gyroMag.toFixed(2), 'temp:', imu.temp);
+
+    if (highAccel) suggestion += 'Try to move more smoothly and avoid jerky motions. ';
+    if (highGyro) suggestion += 'Reduce twisting/rotation for better control. ';
+    if (highTemp) suggestion += 'Take a break if you feel overheated.';
+    if (!suggestion) suggestion = 'Movement looks stable. Keep going!';
+    return suggestion;
+}
+
+// New: Parse IMU data from the interface text for feedback
+function getIMUSuggestionFromText() {
+    let suggestion = '';
+    // Get the text from the interface
+    const imuText = document.getElementById('imu-data').textContent;
+
+    // Parse Accel and Gyro arrays from the string
+    const accelMatch = imuText.match(/Accel: \[([\d\.,\- ]+)\]/);
+    const gyroMatch = imuText.match(/Gyro: \[([\d\.,\- ]+)\]/);
+
+    let ax = 0, ay = 0, gx = 0, gy = 0, gz = 0;
+    if (accelMatch) {
+        const accelArr = accelMatch[1].split(',').map(Number);
+        ax = accelArr[0] || 0;
+        ay = accelArr[1] || 0;
+    }
+    if (gyroMatch) {
+        const gyroArr = gyroMatch[1].split(',').map(Number);
+        gx = gyroArr[0] || 0;
+        gy = gyroArr[1] || 0;
+        gz = gyroArr[2] || 0;
+    }
+
+    // Calculate magnitudes
+    const accelMag = Math.abs(ax) + Math.abs(ay);
+    const gyroMag = Math.abs(gx) + Math.abs(gy) + Math.abs(gz);
+
+    // Use your thresholds
+    const highAccel = accelMag > 2;
+    const highGyro = accelMag<2 && gyroMag > 0.5;
+
+    // Debug output
+    console.log('Parsed from text - accelMag:', accelMag, 'gyroMag:', gyroMag);
+
+    if (highAccel) suggestion += 'Try to move more smoothly and avoid jerky motions. ';
+    if (highGyro) suggestion += 'Reduce twisting/rotation for better control. ';
+    if (!suggestion) suggestion = 'Movement looks stable. Keep going!';
+    return suggestion;
+}
+    </script>
+</body>
+</html> 
